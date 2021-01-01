@@ -21,7 +21,7 @@ public class TokenService {
     public String newToken(Authentication authentication) {
         Usuario logado = (Usuario) authentication.getPrincipal();
         Date hoje = new Date();
-        Date dataExpiracao = new Date(hoje.getTime() +  Long.parseLong( expiration));
+        Date dataExpiracao = new Date(hoje.getTime() + Long.parseLong(expiration));
 
         return Jwts.builder()
                 .setIssuer("Api do Forum Alura")
@@ -29,5 +29,18 @@ public class TokenService {
                 .setIssuedAt(hoje)
                 .setExpiration(dataExpiracao)
                 .signWith(SignatureAlgorithm.HS256, secret).compact();
+    }
+
+    public boolean autheticationToken(String token) {
+        try {
+            Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public Long getIdUserByToken(String token) {
+        return Long.parseLong(Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject());
     }
 }
